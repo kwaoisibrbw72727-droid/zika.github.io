@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>智能体欢迎界面 · 全屏版</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(155deg, #4a5a68 0%, #3d4c5a 45%, #2c3a48 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: default;
+      user-select: none;
+    }
+
+    /* ========== 背景装饰 ========== */
+    .bg-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.32;
+      animation: glowMove 14s ease-in-out infinite;
+    }
+    .bg-glow.g1 {
+      width: 480px; height: 480px;
+      background: #7b68ee;
+      top: -120px; left: -140px;
+    }
+    .bg-glow.g2 {
+      width: 400px; height: 400px;
+      background: #f4a261;
+      bottom: -100px; right: -100px;
+      animation-delay: -5s;
+    }
+    .bg-glow.g3 {
+      width: 300px; height: 300px;
+      background: #f4d35e;
+      top: 35%; left: 55%;
+      animation-delay: -9s;
+    }
+
+    @keyframes glowMove {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(40px, -30px) scale(1.1); }
+      66% { transform: translate(-30px, 35px) scale(0.92); }
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      animation: rise linear infinite;
+    }
+
+    @keyframes rise {
+      0%   { transform: translateY(110vh) scale(0.3); opacity: 0; }
+      8%   { opacity: 0.55; }
+      92%  { opacity: 0.35; }
+      100% { transform: translateY(-15vh) scale(1.1); opacity: 0; }
+    }
+
+    /* ========== 主内容 ========== */
+    .main {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 720px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    /* 角色舞台 */
+    .stage {
+      position: relative;
+      width: 400px;
+      height: 340px;
+      margin-bottom: 20px;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .stage-glow {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255,255,255,0.13) 0%, transparent 68%);
+      border-radius: 50%;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: stagePulse 5.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes stagePulse {
+      0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.18); }
+    }
+
+    /* 角色基础 */
+    .blob {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 14px 26px rgba(0,0,0,0.3));
+      will-change: transform;
+    }
+
+    .eye {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .eye.left  { left: 22%; }
+    .eye.right { right: 22%; }
+
+    .pupil {
+      width: 9px;
+      height: 9px;
+      background: #1a1a1a;
+      border-radius: 50%;
+      position: relative;
+      transition: transform 0.065s ease-out;
+    }
+    .pupil::after {
+      content: '';
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      top: 1.5px;
+      left: 1.5px;
+    }
+
+    /* 橙色左前 */
+    .blob.orange {
+      width: 142px; height: 152px;
+      background: linear-gradient(155deg, #f8b97a, #f4a261 60%, #e8924a);
+      bottom: 24px; left: 10px;
+      border-radius: 48% 52% 50% 50% / 58% 52% 48% 42%;
+      z-index: 4;
+      animation: floatO 4.4s ease-in-out infinite;
+    }
+    .blob.orange .eye { top: 32%; width: 16px; height: 16px; }
+    .blob.orange .pupil { width: 8px; height: 8px; }
+
+    /* 紫色高个 */
+    .blob.purple {
+      width: 116px; height: 224px;
+      background: linear-gradient(180deg, #9485f5, #7b68ee 50%, #6354d8);
+      bottom: 50px; left: 108px;
+      border-radius: 42% 58% 48% 52% / 25% 25% 75% 75%;
+      z-index: 3;
+      animation: floatP 4.1s ease-in-out infinite;
+    }
+    .blob.purple .eye { top: 14.5%; width: 18px; height: 18px; }
+    .blob.purple .pupil { width: 9px; height: 9px; }
+
+    /* 黑色 */
+    .blob.black {
+      width: 102px; height: 142px;
+      background: linear-gradient(160deg, #444, #2a2a2a 70%, #1a1a1a);
+      bottom: 34px; left: 178px;
+      border-radius: 50% 50% 48% 52% / 55% 50% 50% 45%;
+      z-index: 2;
+      animation: floatB 4.7s ease-in-out infinite;
+    }
+    .blob.black .eye {
+      top: 28%; width: 15px; height: 15px;
+      background: #ececec;
+    }
+    .blob.black .pupil {
+      width: 7.5px; height: 7.5px;
+      background: #111;
+    }
+
+    /* 黄色右前 */
+    .blob.yellow {
+      width: 128px; height: 138px;
+      background: linear-gradient(155deg, #f8e27a, #f4d35e 55%, #e6c13a);
+      bottom: 14px; left: 228px;
+      border-radius: 52% 48% 50% 50% / 52% 52% 48% 48%;
+      z-index: 5;
+      animation: floatY 3.9s ease-in-out infinite;
+    }
+    .blob.yellow .eye { top: 30%; width: 16px; height: 16px; }
+    .blob.yellow .pupil { width: 8px; height: 8px; }
+
+    @keyframes floatO {
+      0%, 100% { transform: translate(0, 0) rotate(-3.5deg); }
+      50% { transform: translate(5px, -26px) rotate(2.8deg); }
+    }
+    @keyframes floatP {
+      0%, 100% { transform: translate(0, 0) rotate(1.8deg); }
+      50% { transform: translate(-6px, -30px) rotate(-2.2deg); }
+    }
+    @keyframes floatB {
+      0%, 100% { transform: translate(0, 0) rotate(-1.2deg); }
+      50% { transform: translate(4px, -20px) rotate(2.8deg); }
+    }
+    @keyframes floatY {
+      0%, 100% { transform: translate(0, 0) rotate(2.8deg); }
+      50% { transform: translate(-5px, -28px) rotate(-3.2deg); }
+    }
+
+    /* 文案区 */
+    .content {
+      opacity: 0;
+      transform: translateY(22px);
+      animation: fadeUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 15px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.88);
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+    .badge::before {
+      content: '';
+      width: 7px; height: 7px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #4ade80;
+      animation: liveDot 1.7s ease-in-out infinite;
+    }
+    @keyframes liveDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.75); }
+    }
+
+    h1 {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.9px;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.3);
+      background: linear-gradient(180deg, #ffffff 20%, rgba(255,255,255,0.78));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.75;
+      margin-bottom: 34px;
+      max-width: 380px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* 主按钮 */
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 230px;
+      height: 58px;
+      padding: 0 34px;
+      background: linear-gradient(135deg, #9485f5 0%, #7b68ee 45%, #6354d8 100%);
+      color: #fff;
+      font-size: 17.5px;
+      font-weight: 600;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 10px 32px rgba(107, 92, 231, 0.48),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .start-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: translateX(-110%);
+      transition: transform 0.65s;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow:
+        0 18px 44px rgba(107, 92, 231, 0.58),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .start-btn:hover::before { transform: translateX(110%); }
+    .start-btn:active { transform: translateY(-1px) scale(0.99); }
+
+    .start-btn svg {
+      width: 18px; height: 18px;
+      fill: currentColor;
+      transition: transform 0.3s;
+    }
+    .start-btn:hover svg { transform: translateX(4px); }
+
+    .hint {
+      margin-top: 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.42);
+      letter-spacing: 0.3px;
+    }
+
+    /* 底部扫描线 */
+    .bottom-line {
+      position: absolute;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 3px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      z-index: 5;
+    }
+    .bottom-line::after {
+      content: '';
+      position: absolute;
+      left: -50%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+      animation: sweep 2.6s ease-in-out infinite;
+    }
+    @keyframes sweep {
+      0% { left: -50%; }
+      100% { left: 100%; }
+    }
+
+    /* 响应式 */
+    @media (max-width: 520px) {
+      .stage { width: 310px; height: 270px; transform: scale(0.9); }
+      h1 { font-size: 29px; }
+      .subtitle { font-size: 14.5px; margin-bottom: 26px; }
+      .start-btn { min-width: 200px; height: 52px; font-size: 16px; }
+    }
+    @media (max-height: 680px) {
+      .stage { height: 240px; margin-bottom: 12px; }
+      h1 { font-size: 30px; }
+      .subtitle { margin-bottom: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-layer" id="bgLayer">
+    <div class="bg-glow g1"></div>
+    <div class="bg-glow g2"></div>
+    <div class="bg-glow g3"></div>
+  </div>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <div class="stage-glow"></div>
+
+      <div class="blob orange">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+      </div>
+      <div class="blob purple">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+      </div>
+      <div class="blob black">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+      </div>
+      <div class="blob yellow">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="badge">智能体在线</div>
+      <h1>欢迎使用智能体</h1>
+      <p class="subtitle">点击下方按钮，开启智能对话体验</p>
+
+      <a class="start-btn"
+         href="https://robot.chaoxing.com/coze?unitId=333390&robotId=2c13b4d2d31b4259bc5849161a2f39a4"
+         target="_blank"
+         rel="noopener">
+        开始体验
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </a>
+
+      <p class="hint">新版智能体已就绪 · 安全跳转</p>
+    </div>
+  </div>
+
+  <div class="bottom-line"></div>
+
+  <script>
+    (function () {
+      // 粒子
+      const bg = document.getElementById('bgLayer');
+      for (let i = 0; i < 32; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const s = 2 + Math.random() * 3.5;
+        p.style.width = s + 'px';
+        p.style.height = s + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (9 + Math.random() * 16) + 's';
+        p.style.animationDelay = (Math.random() * 14) + 's';
+        p.style.opacity = 0.18 + Math.random() * 0.4;
+        bg.appendChild(p);
+      }
+
+      // 眼睛跟随
+      const eyes = document.querySelectorAll('.eye');
+      const maxMove = 4.6;
+
+      function lookAt(x, y) {
+        eyes.forEach(eye => {
+          const r = eye.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          const dx = x - cx;
+          const dy = y - cy;
+          const dist = Math.hypot(dx, dy);
+          const ang = Math.atan2(dy, dx);
+          const m = Math.min(dist / 26, maxMove);
+          const pupil = eye.querySelector('.pupil');
+          if (pupil) {
+            pupil.style.transform = `translate(${Math.cos(ang) * m}px, ${Math.sin(ang) * m}px)`;
+          }
+        });
+      }
+
+      document.addEventListener('mousemove', e => lookAt(e.clientX, e.clientY));
+      document.addEventListener('touchmove', e => {
+        if (e.touches[0]) lookAt(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+
+      // 舞台轻微跟随鼠标水平方向
+      const stage = document.getElementById('stage');
+      document.addEventListener('mousemove', e => {
+        const offset = (e.clientX / window.innerWidth - 0.5) * 16;
+        stage.style.transform = `translateX(${offset}px)`;
+      });
+
+      // 初始视线
+      window.addEventListener('load', () => {
+        lookAt(window.innerWidth / 2, window.innerHeight * 0.4);
+      });
+    })();
+  </script>
+</body>
+</html>
